@@ -35,6 +35,9 @@ public class Future<T> {
 	/**
      * Resolves the result of this Future object.
      */
+	// @pre isDone==false
+	// @post result.getStatus!=@pre result.getStatus && isDone==true
+
 	public void resolve (T result) {
 		//TODO: implement this.
 	}
@@ -42,6 +45,7 @@ public class Future<T> {
 	/**
      * @return true if this object has been resolved, false otherwise
      */
+
 	public boolean isDone() {
 		//TODO: implement this.
 		return false;
@@ -58,6 +62,7 @@ public class Future<T> {
      * 	       wait for {@code timeout} TimeUnits {@code unit}. If time has
      *         elapsed, return null.
      */
+
 	public T get(long timeout, TimeUnit unit) {
 		//TODO: implement this.
 		return null;

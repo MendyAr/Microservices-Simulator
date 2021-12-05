@@ -19,7 +19,9 @@ public class CPU {
     private Cluster cluster;
     private int processTime; //add final
 
-
+    public int getTickCounter(){return tickCounter;}
+    public Container getData(){return data;}
+    public int getProcessTime(){return processTime;}
     // @post tickCounter = tickCounter + 1;
     public void advanceClock(){}
 

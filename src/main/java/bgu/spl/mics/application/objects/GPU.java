@@ -26,10 +26,32 @@ public class GPU {
     private int vRamCapacity;
     private int samplesIdx;
 
+    public int getTickCounter(){return tickCounter;}
+
 
 
     // @post tickCounter = tickCounter + 1;
     public void advanceClock(){}
+
+    public Container getvRam() {
+        return vRam;
+    }
+
+    public int getvRamCapacity() {
+        return vRamCapacity;
+    }
+
+    public int getSamplesIdx() {
+        return samplesIdx;
+    }
+
+    public Model getModel() {
+        return model;
+    }
+
+    public int getProcessTime() {
+        return processTime;
+    }
 
     // @pre vRam.size() < vRamCapacity
     // @post vRam.size() ==  ( @pre vRam.size() ) + 1
