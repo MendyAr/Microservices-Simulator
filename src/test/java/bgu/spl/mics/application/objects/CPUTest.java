@@ -27,15 +27,15 @@ class CPUTest {
     }
 
     @Test
-    void receiveDataBatch() {//how to check the wait method, is it ok to assert to one
+    void receiveDataBatch() {
         assertEquals(cpu.getData().getSize(),0);
         cpu.receiveDataBatch();
         assertEquals(cpu.getData().getSize(),1);
     }
 
     @Test
-    void sendDataBatch() {//if i need to had try and catch
-        assertTrue(cpu.getData().getWidth()>0);//container width
+    void sendDataBatch() {
+        assertTrue(cpu.getData().getWidth()>0);
         int curDataSize=cpu.getData().getWidth();
         cpu.receiveDataBatch();
         assertEquals(cpu.getData().getWidth(),curDataSize+1);
