@@ -16,8 +16,8 @@ class FutureTest {
     @BeforeEach
     void setUp() {
         future=new Future<>();
-        model=new Model();
-        result=new Model();
+        model=new Model("name1", "Image", 1000);
+        result=new Model("name2", "Image", 1000);
 
     }
 
@@ -27,7 +27,7 @@ class FutureTest {
 
     @Test
     void get() throws InterruptedException {
-        Model.status currStatus=model.getStatus();
+        Model.Status currStatus=model.getStatus();
         result=future.get();
         assertNull(result);
         future.resolve(model);
@@ -38,7 +38,7 @@ class FutureTest {
 
     @Test
     void resolve() {
-        Model.status currStatus=model.getStatus();
+        Model.Status currStatus=model.getStatus();
         assertNull(result);
         assertFalse(future.isDone());
         future.resolve(model);

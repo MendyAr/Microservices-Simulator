@@ -1,7 +1,8 @@
 package bgu.spl.mics.application.objects;
 
+import java.util.LinkedList;
+import java.util.List;
 
-import java.awt.*;
 
 /**
  * Passive object representing a single CPU.
@@ -10,18 +11,55 @@ import java.awt.*;
  */
 public class CPU {
 
-    // @Inv tickCounter > 0
-    // data.size() >= 0
+    /** @INV: tickCounter > 0
+     * data.size() >= 0
+     */
 
-    private int tickCounter;
-    private int cores;
-    private Container data;
+    private final int cores;
+    private final int imageProcessTime;
+    private final int textProcessTime;
+    private final int tabularProcessTime;
+
+    private List<DataBatch> data; //creating List for each type?
     private Cluster cluster;
-    private int processTime; //add final
+    private int tickCounter;
 
-    public int getTickCounter(){return tickCounter;}
-    public Container getData(){return data;}
-    public int getProcessTime(){return processTime;}
+
+    public CPU(int cores){
+        this.cores = cores;
+        imageProcessTime = (32/cores) * 4;
+        textProcessTime =  (32/cores) * 2;
+        tabularProcessTime = (32/cores);
+
+        data = new LinkedList<>();
+        cluster = Cluster.getInstance();
+        tickCounter = 0;
+    }
+
+    public int getCores() {
+        return cores;
+    }
+
+    public int getImageProcessTime() {
+        return imageProcessTime;
+    }
+
+    public int getTextProcessTime() {
+        return textProcessTime;
+    }
+
+    public int getTabularProcessTime() {
+        return tabularProcessTime;
+    }
+
+    public List<DataBatch> getData() {
+        return data;
+    }
+
+    public int getTickCounter() {
+        return tickCounter;
+    }
+
     // @post tickCounter = tickCounter + 1;
     public void advanceClock(){}
 

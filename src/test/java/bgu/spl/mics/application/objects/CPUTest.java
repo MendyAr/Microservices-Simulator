@@ -11,7 +11,7 @@ class CPUTest {
 
     @BeforeEach
     void setUp() {
-        cpu=new CPU();
+        cpu=new CPU(32);
     }
 
     @AfterEach
@@ -28,24 +28,24 @@ class CPUTest {
 
     @Test
     void receiveDataBatch() {
-        assertEquals(cpu.getData().getSize(),0);
+        assertEquals(cpu.getData().size(),0);
         cpu.receiveDataBatch();
-        assertEquals(cpu.getData().getSize(),1);
+        assertEquals(cpu.getData().size(),1);
     }
 
     @Test
     void sendDataBatch() {
-        assertTrue(cpu.getData().getWidth()>0);
-        int curDataSize=cpu.getData().getWidth();
+        assertTrue(cpu.getData().size()>0);
+        int curDataSize=cpu.getData().size();
         cpu.receiveDataBatch();
-        assertEquals(cpu.getData().getWidth(),curDataSize+1);
+        assertEquals(cpu.getData().size(),curDataSize+1);
     }
 
     @Test
     void process() {
-        assertTrue(cpu.getData().getWidth()>0);
+        assertTrue(cpu.getData().size()>0);
         int curTickCounter= cpu.getTickCounter();
         cpu.process();
-        assertTrue(cpu.getTickCounter()>curTickCounter+ cpu.getProcessTime());
+        assertTrue(cpu.getTickCounter()>curTickCounter+ cpu.getImageProcessTime());
     }
 }

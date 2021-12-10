@@ -12,7 +12,7 @@ class GPUTest {
 
     @BeforeEach
     void setUp() {
-        gpu=new GPU();
+        gpu=new GPU("RTX3090");
     }
 
     @AfterEach
@@ -28,27 +28,27 @@ class GPUTest {
 
     @Test
     void receiveDataBatch() {
-        assertTrue(gpu.getvRam().getWidth()< gpu.getvRamCapacity());
-        int currVramSize=gpu.getvRam().getWidth();
-        assertEquals(gpu.getvRam().getWidth(),currVramSize+1);
+        assertTrue(gpu.getvRam().size()< gpu.getvRamCapacity());
+        int currVramSize=gpu.getvRam().size();
+        assertEquals(gpu.getvRam().size(),currVramSize+1);
 
     }
 
     @Test
     void sendDataBatch() {
         assertTrue(gpu.getSamplesIdx()<gpu.getModel().getData().getSize());
-        assertTrue(gpu.getvRam().getWidth()< gpu.getvRamCapacity());
-        int currSampleIndx= gpu.getSamplesIdx();
+        assertTrue(gpu.getvRam().size()< gpu.getvRamCapacity());
+        int currSampleIdx= gpu.getSamplesIdx();
         gpu.sendDataBatch();
-        assertEquals(gpu.getSamplesIdx(),currSampleIndx+1000);
+        assertEquals(gpu.getSamplesIdx(),currSampleIdx+1000);
     }
 
     @Test
     void process() {
-        assertTrue(gpu.getvRam().getWidth()>0);
+        assertTrue(gpu.getvRam().size()>0);
         int currTickCounter= gpu.getTickCounter();
         gpu.process();
-        assertEquals(gpu.getTickCounter(),currTickCounter+gpu.getProcessTime());
+        assertEquals(gpu.getTickCounter(),currTickCounter+gpu.getProcessTimeCost());
 
     }
 }

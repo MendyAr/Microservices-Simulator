@@ -13,9 +13,15 @@ import bgu.spl.mics.MicroService;
  */
 public class GPUService extends MicroService {
 
+    private int gpuUseTime;
+
     public GPUService(String name) {
         super("Change_This_Name");
         // TODO Implement this
+    }
+
+    public int getGpuUseTime() {
+        return gpuUseTime;
     }
 
     @Override
@@ -23,4 +29,5 @@ public class GPUService extends MicroService {
         // TODO Implement this
 
     }
+
 }
