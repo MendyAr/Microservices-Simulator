@@ -17,7 +17,6 @@ public class ConfrenceInformation {
     public ConfrenceInformation(String name, int date) {
         this.name = name;
         this.date = date;
-
         publishedModels = new LinkedList<>();
     }
 

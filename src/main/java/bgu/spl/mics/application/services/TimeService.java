@@ -12,10 +12,34 @@ import bgu.spl.mics.MicroService;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class TimeService extends MicroService {
+	private static TimeService timeService = null;
 
-	public TimeService() {
-		super("Change_This_Name");
-		// TODO Implement this
+	private final int tickTime;
+	private final int duration;
+
+	private TimeService(int tickTime, int duration) {
+		super("TimeService");
+		if (tickTime <= 0 | duration <= 0)
+			throw new IllegalArgumentException("tickTime or duration isn't a positive value!");
+
+		this.tickTime = tickTime;
+		this.duration = duration;
+		initialize();
+	}
+
+	public static TimeService getFirstInstance(int tickTime, int duration){
+		if (timeService != null)
+			throw new RuntimeException("an instance of time service already exist!");
+
+		timeService = new TimeService(tickTime, duration);
+		return timeService;
+	}
+
+	public static TimeService getInstance(){
+		if (timeService == null)
+			throw new RuntimeException("instance of time service not exist!");
+
+		return timeService;
 	}
 
 	@Override

@@ -1,8 +1,11 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.objects.ConfrenceInformation;
 import bgu.spl.mics.application.objects.Model;
+import bgu.spl.mics.application.objects.Student;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -15,21 +18,34 @@ import java.util.List;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class ConferenceService extends MicroService {
+    private static int availableIdx = 0;
 
-    private List<Model> publishedModels;
+    private final ConfrenceInformation conference;
 
-    public ConferenceService(String name) {
-        super("Change_This_Name");
-        // TODO Implement this
+    public ConferenceService(ConfrenceInformation conference){
+        super(getAvailableName());
+        if (conference == null)
+            throw new IllegalArgumentException("Conference service constructor received null conference!");
+
+        this.conference = conference;
+        initialize();
     }
 
-    public List<Model> getPublishedModels() {
-        return publishedModels;
+    private static String getAvailableName(){
+        String output = "ConferenceService" + availableIdx;
+        availableIdx++;
+        return output;
     }
+
 
     @Override
     protected void initialize() {
         // TODO Implement this
 
+    }
+
+    @Override
+    public String toString() {
+        return conference.toString();
     }
 }

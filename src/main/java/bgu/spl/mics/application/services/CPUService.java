@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.objects.CPU;
 
 /**
  * CPU service is responsible for handling the {@link DataPreProcessEvent}.
@@ -10,13 +11,27 @@ import bgu.spl.mics.MicroService;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class CPUService extends MicroService {
+    private static int availableIdx = 0;
 
+    private final CPU cpu;
     private int cpuUseTime;
     private int batchesProcessed;
 
-    public CPUService(String name) {
-        super("Change_This_Name");
-        // TODO Implement this
+    public CPUService(CPU cpu) {
+        super(getAvailableName());
+        if (cpu == null)
+            throw new IllegalArgumentException("CPU service received null cpu!");
+
+        this.cpu = cpu;
+        cpuUseTime = 0;
+        batchesProcessed = 0;
+        initialize();
+    }
+
+    private static String getAvailableName(){
+        String output = "CpuService" + availableIdx;
+        availableIdx++;
+        return output;
     }
 
     public int getCpuUseTime() {
@@ -32,5 +47,4 @@ public class CPUService extends MicroService {
         // TODO Implement this
 
     }
-
 }

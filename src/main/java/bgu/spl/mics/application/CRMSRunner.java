@@ -1,8 +1,7 @@
 package bgu.spl.mics.application;
 
 import bgu.spl.mics.application.objects.*;
-import bgu.spl.mics.application.services.CPUService;
-import bgu.spl.mics.application.services.GPUService;
+import bgu.spl.mics.application.services.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -20,22 +19,16 @@ import java.io.File;
  */
 public class CRMSRunner {
     public static void main(String[] args) {
-        /*if ( args.length != 1){
-            throw new IllegalArgumentException("usage: <file path>.json");
-        }*/
-
-        //declaring containers to hold json objects
-        List<Student> studentList = new LinkedList<>();
-        List<GPU> gpuList = new LinkedList<>();
-        List<CPU> cpuList = new LinkedList<>();
+        List<StudentService> studentServiceList = new LinkedList<>();
         List<GPUService> gpuServiceList = new LinkedList<>();
         List<CPUService> cpuServiceList = new LinkedList<>();
-        List<ConfrenceInformation> conferenceList = new LinkedList<>();
+        List<ConferenceService> conferenceServicesList = new LinkedList<>();
+        TimeService timeService;
         int tickTime;
         int duration;
 
-        //extracting data from json
-        File input = new File("C:\\Users\\ADMIN\\Desktop\\SPL\\HW_2\\Assignment2_spl\\example_input.json"); // args[0]
+        //extracting data from json and building objects and services, subscribing to the massageBus when constructing the services
+        File input = new File("example_input.json"); // args[0]
         try {
             JsonElement fileElement = JsonParser.parseReader(new FileReader(input));
             JsonObject fileObject = fileElement.getAsJsonObject();
@@ -58,7 +51,8 @@ public class CRMSRunner {
                     int modelSize = modelObject.get("size").getAsInt();
                     models.add(new Model(modelName, modelType, modelSize));
                 }
-                studentList.add(new Student(name, department, status, models));
+                StudentService studentService = new StudentService(new Student(name, department, status, models));
+                studentServiceList.add(studentService);
             }
 
             //process all gpus
@@ -66,7 +60,8 @@ public class CRMSRunner {
             for (JsonElement gpuElement : jsonGpuArray){
                 //JsonObject gpuObject = gpuElement.getAsString();
                 String type = gpuElement.getAsString();
-                gpuList.add(new GPU(type));
+                GPUService gpuService = new GPUService(new GPU(type));
+                gpuServiceList.add(gpuService);
             }
 
             //process all cpus
@@ -74,7 +69,8 @@ public class CRMSRunner {
             for (JsonElement cpuElement : jsonCpuArray){
                 //JsonObject cpuObject = cpuElement.getAsJsonObject();
                 int type = cpuElement.getAsInt();
-                cpuList.add(new CPU(type));
+                CPUService cpuService = new CPUService(new CPU(type));
+                cpuServiceList.add(cpuService);
             }
 
             //process all conferences
@@ -83,12 +79,14 @@ public class CRMSRunner {
                 JsonObject conferenceObject = conferenceElement.getAsJsonObject();
                 String name = conferenceObject.get("name").getAsString();
                 int date = conferenceObject.get("date").getAsInt();
-                conferenceList.add(new ConfrenceInformation(name, date));
+                ConferenceService conferenceService = new ConferenceService(new ConfrenceInformation(name, date));
+                conferenceServicesList.add(conferenceService);
             }
 
             //process tickTime and duration
             tickTime = fileObject.get("TickTime").getAsInt();
             duration = fileObject.get("Duration").getAsInt();
+            timeService = TimeService.getFirstInstance(tickTime, duration);
 
         } catch (FileNotFoundException ex){
             System.err.println("File not found!");
@@ -97,25 +95,19 @@ public class CRMSRunner {
             ex.printStackTrace();
         }
 
-        //creating services for the objects
-
-
-        //register the services to the massageBus
-
-
         //creating Tread for each service
 
-        //start the clock
+        //activates all treads and the clock thread
 
 
         //creating the output string
         String output = "";
-        for(Student student : studentList) {
-            output += student.toString() + "\n\n";
+        for(StudentService studentService : studentServiceList) {
+            output += studentService.toString() + "\n\n";
         }
         //output += "\n";
-        for (ConfrenceInformation conference : conferenceList){
-            output += conference.toString() + "\n";
+        for (ConferenceService conferenceService : conferenceServicesList){
+            output += conferenceService.toString() + "\n";
         }
         output += "\n";
         int gpuUseTime = 0;

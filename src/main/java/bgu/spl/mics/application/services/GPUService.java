@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.objects.GPU;
 
 /**
  * GPU service is responsible for handling the
@@ -12,12 +13,25 @@ import bgu.spl.mics.MicroService;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class GPUService extends MicroService {
+    private static int availableIdx = 0;
 
+    private final GPU gpu;
     private int gpuUseTime;
 
-    public GPUService(String name) {
-        super("Change_This_Name");
-        // TODO Implement this
+    public GPUService(GPU gpu) {
+        super(getAvailableName());
+        if (gpu == null)
+            throw new IllegalArgumentException("GPU service received null gpu!");
+
+        this.gpu = gpu;
+        gpuUseTime = 0;
+        initialize();
+    }
+
+    private static String getAvailableName(){
+        String output = "GpuService" + availableIdx;
+        availableIdx++;
+        return output;
     }
 
     public int getGpuUseTime() {
@@ -25,7 +39,7 @@ public class GPUService extends MicroService {
     }
 
     @Override
-    protected void initialize() {
+     protected void initialize() {
         // TODO Implement this
 
     }

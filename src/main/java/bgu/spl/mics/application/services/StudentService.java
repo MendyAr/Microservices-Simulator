@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.objects.Student;
 
 /**
  * Student is responsible for sending the {@link TrainModelEvent},
@@ -12,17 +13,32 @@ import bgu.spl.mics.MicroService;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class StudentService extends MicroService {
+    private static int availableIdx = 0;
 
+    private final Student student;
 
-    public StudentService(String name) {
-        super("Change_This_Name");
-        // TODO Implement this
+    public StudentService(Student student) {
+        super(getAvailableName());
+        if (student == null)
+            throw new IllegalArgumentException("Student service received null student!");
+
+        this.student = student;
+        initialize();
     }
 
+    private static String getAvailableName(){
+        String output = "StudentService" + availableIdx;
+        availableIdx++;
+        return output;
+    }
 
     @Override
     protected void initialize() {
         // TODO Implement this
 
+    }
+
+    public String toString(){
+        return student.toString();
     }
 }
