@@ -2,6 +2,7 @@ package bgu.spl.mics.application.objects;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Passive object representing a single GPU.
@@ -23,9 +24,10 @@ public class GPU {
 
     private Cluster cluster;
     private int tickCounter;
-    private List<DataBatch> vRam;
+    private ConcurrentLinkedQueue<DataBatch> vRam;
     private Model model;
     private int samplesIdx;
+    private DataBatch currentDataB;
 
     public GPU(String type) {
         switch (type) {
@@ -50,17 +52,14 @@ public class GPU {
 
         cluster = Cluster.getInstance();
         tickCounter = 0;
-        vRam = new LinkedList<>();
+        vRam = new ConcurrentLinkedQueue();
         model = null;
         samplesIdx = 0;
     }
 
     public int getTickCounter(){return tickCounter;}
 
-    // @post tickCounter = tickCounter + 1;
-    public void advanceClock(){}
-
-    public List<DataBatch> getvRam() {
+    public ConcurrentLinkedQueue<DataBatch> getvRam() {
         return vRam;
     }
 
@@ -79,18 +78,57 @@ public class GPU {
     public int getProcessTimeCost() {
         return processTimeCost;
     }
+    public void setModel(Model m){
+        model=m;
+        model.setStatus(Model.Status.Training);
+        for (int i=0;i<vRamCapacity && model.getData().getSize()>samplesIdx;i++){
+            DataBatch db=new DataBatch(model.getData(),samplesIdx);
+            cluster.sendUnProcessed(db,this);
+            samplesIdx=samplesIdx+1000;
+        }
+    }
 
     // @pre vRam.size() < vRamCapacity
     // @post vRam.size() ==  ( @pre vRam.size() ) + 1
-    public void receiveDataBatch(){} //asking for processed dataBatch from the cluster
-
-    // @pre samplesIdx < model.data.getSize() &  vRam.size() < vRamCapacity
-    // @post samplesIdx == ( @pre samplesIdx + 1000 )
-    public void sendDataBatch(){} //sending unprocessed data batch to the cluster
+    public void receiveProcessedDB(DataBatch ProcessedDB) {//receive processed dataBatch from the cluster
+        vRam.add(ProcessedDB);
+    }
+    // @post tickCounter = tickCounter + 1;
+    public void advanceClock() {
+        if (model != null) {//means the gpu is currently processed a model
+            if (currentDataB != null) {
+                tickCounter++;
+                cluster.setGpuUTUed();
+                if (processTimeCost == tickCounter) {
+                    currentDataB = null;
+                    tickCounter = 0;
+                    model.getData().incProcessed();
+                    if (samplesIdx<model.getData().getSize()) {
+                        DataBatch dataBatch = new DataBatch(model.getData(), samplesIdx);
+                        cluster.sendUnProcessed(dataBatch,this);
+                        samplesIdx=samplesIdx+1000;
+                    }
+                }
+            }
+            else if (!vRam.isEmpty())
+                currentDataB = vRam.remove();
+            if(model.getData().getProcessed()==model.getData().getSize()) {
+                model.setStatus(Model.Status.Trained);
+                cluster.addTrainedModel(model);
+                model=null;
+            }
+        }
+    }
 
     // @pre vRam.size() > 0
     // @post tickCounter > (@pre tickCounter ) + processTime
-    public void process(){} //process the data - wait for the defined ticks to happen
-
+    public void processModel(Model m) { //process the data - wait for the defined ticks to happen
+        if (m.getStatus()== Model.Status.PreTrained)
+            setModel(m);
+        else if (m.getStatus()== Model.Status.Trained) {
+            model.setStatus(Model.Status.Tested);
+            model.setResult();
+        }
+    }
 
 }

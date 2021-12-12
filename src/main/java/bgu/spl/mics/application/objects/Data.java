@@ -49,7 +49,7 @@ public class Data {
         return processed;
     }
 
-    public void setProcessed(int processed) {
-        this.processed = processed;
+    public void incProcessed() {
+        processed=processed+1000;
     }
 }

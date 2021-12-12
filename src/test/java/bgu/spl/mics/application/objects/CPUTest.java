@@ -27,25 +27,7 @@ class CPUTest {
     }
 
     @Test
-    void receiveDataBatch() {
-        assertEquals(cpu.getData().size(),0);
-        cpu.receiveDataBatch();
-        assertEquals(cpu.getData().size(),1);
-    }
-
-    @Test
-    void sendDataBatch() {
-        assertTrue(cpu.getData().size()>0);
-        int curDataSize=cpu.getData().size();
-        cpu.receiveDataBatch();
-        assertEquals(cpu.getData().size(),curDataSize+1);
-    }
-
-    @Test
     void process() {
-        assertTrue(cpu.getData().size()>0);
-        int curTickCounter= cpu.getTickCounter();
-        cpu.process();
-        assertTrue(cpu.getTickCounter()>curTickCounter+ cpu.getImageProcessTime());
+
     }
 }
