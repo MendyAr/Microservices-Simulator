@@ -51,6 +51,10 @@ public class Model {
     public Student getStudent() {
         return student;
     }
+    public void setStatus(Model.Status s){
+        status=s;
+    }
+    public void setResult(){}
 
     public boolean isPublished(){
         return published;

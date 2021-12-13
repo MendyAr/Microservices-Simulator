@@ -11,35 +11,22 @@ import bgu.spl.mics.application.objects.CPU;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class CPUService extends MicroService {
-    private static int availableIdx = 0;
 
+    private static int availableIdx = 0;
     private final CPU cpu;
-    private int cpuUseTime;
-    private int batchesProcessed;
+
 
     public CPUService(CPU cpu) {
         super(getAvailableName());
         if (cpu == null)
             throw new IllegalArgumentException("CPU service received null cpu!");
-
         this.cpu = cpu;
-        cpuUseTime = 0;
-        batchesProcessed = 0;
-        initialize();
     }
 
     private static String getAvailableName(){
         String output = "CpuService" + availableIdx;
         availableIdx++;
         return output;
-    }
-
-    public int getCpuUseTime() {
-        return cpuUseTime;
-    }
-
-    public int getBatchesProcessed() {
-        return batchesProcessed;
     }
 
     @Override

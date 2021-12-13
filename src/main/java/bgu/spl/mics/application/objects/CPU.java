@@ -2,6 +2,7 @@ package bgu.spl.mics.application.objects;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 
 /**
@@ -19,10 +20,10 @@ public class CPU {
     private final int imageProcessTime;
     private final int textProcessTime;
     private final int tabularProcessTime;
-
-    private List<DataBatch> data; //creating List for each type?
     private Cluster cluster;
     private int tickCounter;
+    private Queue<DataBatch>dataBatches;
+    private DataBatch currentDBProcessed;
 
 
     public CPU(int cores){
@@ -30,11 +31,11 @@ public class CPU {
         imageProcessTime = (32/cores) * 4;
         textProcessTime =  (32/cores) * 2;
         tabularProcessTime = (32/cores);
-
-        data = new LinkedList<>();
         cluster = Cluster.getInstance();
         tickCounter = 0;
+
     }
+
 
     public int getCores() {
         return cores;
@@ -52,27 +53,43 @@ public class CPU {
         return tabularProcessTime;
     }
 
-    public List<DataBatch> getData() {
-        return data;
-    }
-
     public int getTickCounter() {
         return tickCounter;
     }
 
     // @post tickCounter = tickCounter + 1;
-    public void advanceClock(){}
+    public void advanceClock(){
+        if(currentDBProcessed!=null) {//cpu is processed data
+            tickCounter++;
+            cluster.setCpuUTUed();
+            if (DataIsProcessed()) {
+                tickCounter = 0;
+                cluster.receiveProcessed(currentDBProcessed);
+                currentDBProcessed = null;
+            }
+        }
+        else {
+            if (dataBatches.size()>0) {//there is un processed data to process
+                currentDBProcessed=dataBatches.poll();
+                tickCounter++;
+                cluster.setCpuUTUed();
+            }
+        }
+    }
 
-    // @pre data.size() == 0
-    // @post data.size() == @pre data.size() + 1
-    public void receiveDataBatch(){} //asking for unprocessed dataBatch from the cluster
-
-    // @pre data.size() > 0
-    // @post data.size() == ( @pre data.size() - 1 )
-    public void sendDataBatch(){} //sending processed data batch to the cluster
-
-    // @pre data.size() > 0
-    // @post tickCounter > (@pre tickCounter ) + processTime
-    public void process(){} //process the data - wait for the defined ticks to happen
-
+    public void process(DataBatch db){ //get un process data from the cluster
+        dataBatches.add(db);
+    }
+    private boolean DataIsProcessed(){
+        Data.Type dbType=currentDBProcessed.getData().getType();
+        switch (dbType){
+            case Images:
+                return tickCounter==imageProcessTime;
+            case Text:
+                return tickCounter==textProcessTime;
+            case Tabular:
+                return tickCounter==tabularProcessTime;
+        }
+        return false;
+    }
 }
