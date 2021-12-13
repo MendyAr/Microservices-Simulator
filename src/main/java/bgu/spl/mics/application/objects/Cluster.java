@@ -16,10 +16,10 @@ public class Cluster {
 	private Collection<GPU> GPU;
 	private Queue<CPU> CPU;
 	private Vector<String> trainedModels;
-	AtomicInteger TotalDBProcessed;
-	AtomicInteger cpuTUUed;//unit time used
-	AtomicInteger gpuTUUsed;
-	Map<DataBatch,GPU> gpuDataBatchMap;
+	private AtomicInteger TotalDBProcessed;
+	private AtomicInteger cpuTUUed;//unit time used
+	private AtomicInteger gpuTUUsed;
+	private Map<DataBatch,GPU> gpuDataBatchMap;
 	private static class SingletonHolder{
 		private static Cluster instance=new Cluster();
 	}
@@ -39,6 +39,9 @@ public class Cluster {
 	public static Cluster getInstance() {
 		return SingletonHolder.instance;
 	}
+	public int getTotalDBProcessed(){return TotalDBProcessed.get();}
+	public int getCpuTUUed(){return cpuTUUed.get();}
+	public int getGpuTUUed(){return gpuTUUsed.get();}
 	public void receiveProcessed(DataBatch DBProcessed) {//receive processed data from the cpu
 		int currTotalDBProcessed;
 		int newTotalDBProcessed;
