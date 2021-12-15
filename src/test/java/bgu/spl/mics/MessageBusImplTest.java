@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 
 public class MessageBusImplTest extends TestCase {
 
-    MessageBusImpl mbI = new MessageBusImpl();
+    MessageBusImpl mbI = MessageBusImpl.getInstance();
 
     public void setUp() throws Exception {
         super.setUp();
