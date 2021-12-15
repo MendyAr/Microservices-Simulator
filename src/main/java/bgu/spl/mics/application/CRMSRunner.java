@@ -23,9 +23,10 @@ public class CRMSRunner {
         List<GPUService> gpuServiceList = new LinkedList<>();
         List<CPUService> cpuServiceList = new LinkedList<>();
         List<ConferenceService> conferenceServicesList = new LinkedList<>();
-        TimeService timeService;
+        TimeService timeService = null;
         int tickTime;
         int duration;
+        List<Thread> threads = new LinkedList<>();
 
         //extracting data from json and building objects and services, subscribing to the massageBus when constructing the services
         File input = new File("example_input.json"); // args[0]
@@ -58,7 +59,6 @@ public class CRMSRunner {
             //process all gpus
             JsonArray jsonGpuArray = fileObject.get("GPUS").getAsJsonArray();
             for (JsonElement gpuElement : jsonGpuArray){
-                //JsonObject gpuObject = gpuElement.getAsString();
                 String type = gpuElement.getAsString();
                 GPUService gpuService = new GPUService(new GPU(type));
                 gpuServiceList.add(gpuService);
@@ -67,7 +67,6 @@ public class CRMSRunner {
             //process all cpus
             JsonArray jsonCpuArray = fileObject.get("CPUS").getAsJsonArray();
             for (JsonElement cpuElement : jsonCpuArray){
-                //JsonObject cpuObject = cpuElement.getAsJsonObject();
                 int type = cpuElement.getAsInt();
                 CPUService cpuService = new CPUService(new CPU(type));
                 cpuServiceList.add(cpuService);
@@ -96,34 +95,49 @@ public class CRMSRunner {
         }
 
         //creating Tread for each service
+        for (StudentService studentService : studentServiceList){
+            Thread thread = new Thread(studentService);
+            threads.add(thread);
+        }
+        for (GPUService gpuService : gpuServiceList){
+            Thread thread = new Thread(gpuService);
+            threads.add(thread);
+        }
+        for (CPUService cpuService : cpuServiceList){
+            Thread thread = new Thread(cpuService);
+            threads.add(thread);
+        }
+        for (ConferenceService conferenceService : conferenceServicesList){
+            Thread thread = new Thread(conferenceService);
+            threads.add(thread);
+        }
+        Thread clockThread = new Thread(timeService);
+        threads.add(clockThread);
 
-        //activates all treads and the clock thread
-
+        //activates all treads and wait for them to finish
+        for (Thread thread : threads){
+            thread.start();
+        }
+        try {
+            for (Thread thread : threads){
+                thread.join();
+            }
+        } catch (InterruptedException e){
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
 
         //creating the output string
         String output = "";
         for(StudentService studentService : studentServiceList) {
             output += studentService.toString() + "\n\n";
         }
-        //output += "\n";
         for (ConferenceService conferenceService : conferenceServicesList){
-            output += conferenceService.toString() + "\n";
+            output += conferenceService.toString() + "\n\n";
         }
-        output += "\n";
-        int gpuUseTime = 0;
-        for (GPUService gpuService : gpuServiceList){
-            gpuUseTime += gpuService.getGpuUseTime();
-        }
-        output += "GPU time used: " + gpuUseTime + "\n";
-        int cpuUseTime = 0;
-        int batchesProcessed = 0;
-        for (CPUService cpuService : cpuServiceList){
-            cpuUseTime += cpuService.getCpuUseTime();
-            batchesProcessed += cpuService.getBatchesProcessed();
-        }
-        output += "CPU time used: " + cpuUseTime + "\n";
-        output += "\n" + "Number of batches processed by all the CPUs: " + batchesProcessed + "\n\n";
-
+        output += "GPU time used: " + Cluster.getInstance().getCpuTUUed() + "\n";
+        output += "CPU time used: " + Cluster.getInstance().getGpuTUUed() + "\n";
+        output += "Number of batches processed by all the CPUs: " +  Cluster.getInstance().getBatchesProcessed + "\n\n";
 
         //export the output to a text file
         String fileName = "ass2_output.txt";
