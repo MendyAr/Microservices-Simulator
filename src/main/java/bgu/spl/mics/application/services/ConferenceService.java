@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.*;
 import bgu.spl.mics.application.objects.ConfrenceInformation;
 import bgu.spl.mics.application.objects.Model;
 import bgu.spl.mics.application.objects.Student;
@@ -36,12 +37,21 @@ public class ConferenceService extends MicroService {
         availableIdx++;
         return output;
     }
+    public void publish(){
+        conference.advanceClock();
+        if (conference.getTickCounter()==conference.getDate()) {
+            PublishConferenceBroadcast broadcast = new PublishConferenceBroadcast(conference.getPublishedModels());
+            sendBroadcast(broadcast);
+            terminate();
+        }
+    }
 
 
     @Override
     protected void initialize() {
-        // TODO Implement this
-
+        subscribeEvent(PublishResultsEvent.class,(PublishResultsEvent event)->conference.aggregateIfSucc(event.getModel()));
+        subscribeBroadcast(terminateBroadcast.class,c->terminate());
+        subscribeBroadcast(TickBroadcast.class,c->conference.advanceClock());
     }
 
     @Override

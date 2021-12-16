@@ -1,5 +1,7 @@
 package bgu.spl.mics.application.objects;
 
+import java.util.Random;
+
 /**
  * Passive object representing a Deep Learning model.
  * Add all the fields described in the assignment as private fields.
@@ -54,7 +56,20 @@ public class Model {
     public void setStatus(Model.Status s){
         status=s;
     }
-    public void setResult(){}
+    public void setResult(){
+        Random rand = new Random();
+        int random = rand.nextInt(10);//// Generate random integers in range 0 to 9
+        if (student.getStatus()== Student.Degree.MSc) {
+            if (random == 0)
+                result = Result.Good;
+            else
+                result = Result.Bad;
+        }
+        else if (random <= 1)
+            result=Result.Good;
+        else
+            result=Result.Bad;
+    }
 
     public boolean isPublished(){
         return published;

@@ -1,6 +1,10 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.PublishConferenceBroadcast;
+import bgu.spl.mics.application.messages.PublishResultsEvent;
+import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.messages.terminateBroadcast;
 import bgu.spl.mics.application.objects.Student;
 
 /**
@@ -34,7 +38,8 @@ public class StudentService extends MicroService {
 
     @Override
     protected void initialize() {
-        // TODO Implement this
+        subscribeBroadcast(PublishConferenceBroadcast.class,(PublishConferenceBroadcast broadcast)->student.addpapersRead(broadcast.getPublishedModels()));
+        subscribeBroadcast(terminateBroadcast.class, c->terminate());
 
     }
 

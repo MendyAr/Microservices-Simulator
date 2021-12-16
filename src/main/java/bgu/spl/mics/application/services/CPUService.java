@@ -1,6 +1,8 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.messages.terminateBroadcast;
 import bgu.spl.mics.application.objects.CPU;
 
 /**
@@ -31,7 +33,8 @@ public class CPUService extends MicroService {
 
     @Override
     protected void initialize() {
-        // TODO Implement this
+        subscribeBroadcast(terminateBroadcast.class, c->terminate());
+        subscribeBroadcast(TickBroadcast.class, c->cpu.advanceClock());
 
     }
 }
