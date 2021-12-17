@@ -2,11 +2,7 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.objects.ConfrenceInformation;
-import bgu.spl.mics.application.objects.Model;
-import bgu.spl.mics.application.objects.Student;
 
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Conference service is in charge of
