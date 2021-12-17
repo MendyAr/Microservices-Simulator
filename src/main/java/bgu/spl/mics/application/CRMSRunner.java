@@ -137,7 +137,7 @@ public class CRMSRunner {
         }
         output += "GPU time used: " + Cluster.getInstance().getCpuTUUed() + "\n";
         output += "CPU time used: " + Cluster.getInstance().getGpuTUUed() + "\n";
-        output += "Number of batches processed by all the CPUs: " +  Cluster.getInstance().getBatchesProcessed + "\n\n";
+        output += "Number of batches processed by all the CPUs: " +  Cluster.getInstance().getTotalDBProcessed() + "\n\n";
 
         //export the output to a text file
         String fileName = "ass2_output.txt";
