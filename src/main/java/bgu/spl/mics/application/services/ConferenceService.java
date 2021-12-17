@@ -49,9 +49,9 @@ public class ConferenceService extends MicroService {
 
     @Override
     protected void initialize() {
-        subscribeEvent(PublishResultsEvent.class,(PublishResultsEvent event)->conference.aggregateIfSucc(event.getModel()));
+        subscribeEvent(PublishResultsEvent.class,(PublishResultsEvent event)-> conference.aggregateIfSucc(event.getModel()));
         subscribeBroadcast(terminateBroadcast.class,c->terminate());
-        subscribeBroadcast(TickBroadcast.class,c->conference.advanceClock());
+        subscribeBroadcast(TickBroadcast.class,c->publish());
     }
 
     @Override

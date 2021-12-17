@@ -1,10 +1,9 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
-import bgu.spl.mics.application.messages.PublishConferenceBroadcast;
-import bgu.spl.mics.application.messages.PublishResultsEvent;
-import bgu.spl.mics.application.messages.TickBroadcast;
-import bgu.spl.mics.application.messages.terminateBroadcast;
+import bgu.spl.mics.application.messages.*;
+import bgu.spl.mics.application.objects.Model;
 import bgu.spl.mics.application.objects.Student;
 
 /**
@@ -40,6 +39,19 @@ public class StudentService extends MicroService {
     protected void initialize() {
         subscribeBroadcast(PublishConferenceBroadcast.class,(PublishConferenceBroadcast broadcast)->student.addpapersRead(broadcast.getPublishedModels()));
         subscribeBroadcast(terminateBroadcast.class, c->terminate());
+        for (int i=0;i<student.getModels().size();i++) {
+            TrainModelEvent trainModelEvent = new TrainModelEvent(student.getModels().get(i));
+            Future<Model> trainedResult=sendEvent(trainModelEvent);
+            if (trainedResult.get()!=null) {
+                TestModelEvent testModelEvent = new TestModelEvent(trainedResult.get());
+                Future<Model> testResult = sendEvent(testModelEvent);
+                if (testResult.get()!=null && testResult.get().getResult()== Model.Result.Good){
+                    PublishResultsEvent publishResultsEvent=new PublishResultsEvent(testResult.get());
+                    sendEvent(publishResultsEvent);
+                }
+
+            }
+        }
 
     }
 

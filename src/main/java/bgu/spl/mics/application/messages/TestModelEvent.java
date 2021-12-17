@@ -5,10 +5,10 @@ import bgu.spl.mics.application.objects.Model;
 
 public class TestModelEvent implements Event {
     private Model model;
-    public void TrainModelEvent(Model m){
+
+    public TestModelEvent(Model m) {
         model=m;
     }
-
     public Model getModel() {
         return model;
     }

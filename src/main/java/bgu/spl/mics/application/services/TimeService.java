@@ -47,7 +47,18 @@ public class TimeService extends MicroService {
 	@Override
 	protected void initialize() {
 		subscribeBroadcast(terminateBroadcast.class, c->terminate());
-		
+		for (int i=0; i<duration;i++){
+			try {
+				Thread.sleep(tickTime);
+				TickBroadcast tickBroadcast=new TickBroadcast();
+				sendBroadcast(tickBroadcast);
+			}
+			catch (InterruptedException e){
+			e.printStackTrace();
+		}
+		}
+		terminateBroadcast terminateBroadcast=new terminateBroadcast();
+		sendBroadcast(terminateBroadcast);
 	}
 
 }
