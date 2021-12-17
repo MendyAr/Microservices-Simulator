@@ -1,5 +1,7 @@
 package bgu.spl.mics.application.objects;
 
+import bgu.spl.mics.application.messages.PublishConferenceBroadcast;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,7 +13,7 @@ public class ConfrenceInformation {
 
     private final String name;
     private final int date;
-
+    private int tickCounter;
     private List<Model> publishedModels;
 
     public ConfrenceInformation(String name, int date) {
@@ -28,6 +30,14 @@ public class ConfrenceInformation {
         return date;
     }
 
+    public int getTickCounter() {
+        return tickCounter;
+    }
+
+    public List<Model> getPublishedModels() {
+        return publishedModels;
+    }
+
     public String toString(){
         String output = "Conference name: " + getName() + "\n" + "published model: " + "\n";
         if (!publishedModels.isEmpty()) {
@@ -41,5 +51,12 @@ public class ConfrenceInformation {
             output += "-nothing was published-" + "\n";
         }
         return output;
+    }
+    public void aggregateIfSucc(Model m){
+        if (m.getResult()== Model.Result.Good)
+            publishedModels.add(m);
+    }
+    public void advanceClock() {
+        tickCounter++;
     }
 }

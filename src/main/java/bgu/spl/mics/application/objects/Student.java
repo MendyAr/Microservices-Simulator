@@ -8,6 +8,7 @@ import java.util.Locale;
  * Add fields and methods to this class as you see fit (including public methods and constructors).
  */
 public class Student {
+
     /**
      * Enum representing the Degree the student is studying for.
      */
@@ -80,5 +81,12 @@ public class Student {
         }
         output += "Number of papers he/she read: " + getNumOfPapersRead();
         return output;
+    }
+
+    public void addpapersRead(List<Model> publishedModels) {
+        for (Model m:publishedModels){
+            if (m.getStudent()!=this)
+                numOfPapersRead++;
+        }
     }
 }

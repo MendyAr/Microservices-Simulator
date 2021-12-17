@@ -1,6 +1,10 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.TestModelEvent;
+import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.messages.TrainModelEvent;
+import bgu.spl.mics.application.messages.terminateBroadcast;
 import bgu.spl.mics.application.objects.GPU;
 
 /**
@@ -40,8 +44,10 @@ public class GPUService extends MicroService {
 
     @Override
      protected void initialize() {
-        // TODO Implement this
-
+        subscribeEvent(TrainModelEvent.class,(TrainModelEvent event)->gpu.processModel(event.getModel()));
+        subscribeEvent(TestModelEvent.class,(TestModelEvent event)->gpu.processModel(event.getModel()));
+        subscribeBroadcast(terminateBroadcast.class, c->terminate());
+        subscribeBroadcast(TickBroadcast.class, c->gpu.advanceClock());
     }
 
 }
