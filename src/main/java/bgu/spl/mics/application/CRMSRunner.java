@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,6 +20,8 @@ import java.io.File;
  */
 public class CRMSRunner {
     public static void main(String[] args) {
+        if (args.length == 0)
+            throw new IllegalArgumentException("usage: <file_path>");
         List<StudentService> studentServiceList = new LinkedList<>();
         List<GPUService> gpuServiceList = new LinkedList<>();
         List<CPUService> cpuServiceList = new LinkedList<>();
@@ -29,7 +32,7 @@ public class CRMSRunner {
         List<Thread> threads = new LinkedList<>();
 
         //extracting data from json and building objects and services, subscribing to the massageBus when constructing the services
-        File input = new File("example_input.json"); // args[0]
+        File input = new File(args[0]); // "example_input.json"
         try {
             JsonElement fileElement = JsonParser.parseReader(new FileReader(input));
             JsonObject fileObject = fileElement.getAsJsonObject();
@@ -43,7 +46,7 @@ public class CRMSRunner {
                 String status = studentObject.get("status").getAsString();
 
                 //process each student models
-                List<Model> models = new LinkedList<>();
+                List<Model> models = new ArrayList<>();
                 JsonArray jsonModelsArray = studentObject.get("models").getAsJsonArray();
                 for (JsonElement modelElement : jsonModelsArray) {
                     JsonObject modelObject = modelElement.getAsJsonObject();
@@ -95,10 +98,6 @@ public class CRMSRunner {
         }
 
         //creating Tread for each service
-        for (StudentService studentService : studentServiceList){
-            Thread thread = new Thread(studentService);
-            threads.add(thread);
-        }
         for (GPUService gpuService : gpuServiceList){
             Thread thread = new Thread(gpuService);
             threads.add(thread);
@@ -111,12 +110,21 @@ public class CRMSRunner {
             Thread thread = new Thread(conferenceService);
             threads.add(thread);
         }
+        for (StudentService studentService : studentServiceList){
+            Thread thread = new Thread(studentService);
+            threads.add(thread);
+        }
         Thread clockThread = new Thread(timeService);
         threads.add(clockThread);
 
         //activates all treads and wait for them to finish
         for (Thread thread : threads){
             thread.start();
+            try {
+                thread.join(2);
+            } catch (InterruptedException e){
+                e.printStackTrace();
+            }
         }
         try {
             for (Thread thread : threads){

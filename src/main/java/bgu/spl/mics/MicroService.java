@@ -1,5 +1,7 @@
 package bgu.spl.mics;
 
+import bgu.spl.mics.application.services.ConferenceService;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -102,7 +104,14 @@ public abstract class MicroService implements Runnable {
      * 	       			null in case no micro-service has subscribed to {@code e.getClass()}.
      */
     protected final <T> Future<T> sendEvent(Event<T> e) {
-       return messageBus.sendEvent(e);
+        /*if (!messageBus.isMicroServiceRegistered(e.getClass())){
+            try {
+                Thread.sleep(2);
+            } catch (InterruptedException ex){
+                ex.printStackTrace();
+            }
+        }*/
+        return messageBus.sendEvent(e);
     }
 
     /**
@@ -141,7 +150,7 @@ public abstract class MicroService implements Runnable {
     protected final void terminate() {
         this.terminated = true;
         messageBus.unregister(this);
-        //Thread.currentThread().interrupt();
+        System.out.print(getName() + " terminated");
     }
 
     /**
@@ -153,8 +162,7 @@ public abstract class MicroService implements Runnable {
     }
 
     /**
-     * The entry point of the micro-service. TODO: you must complete this code
-     * otherwise you will end up in an infinite loop.
+     * The entry point of the micro-service.
      */
     @Override
     public final void run() {
@@ -168,7 +176,6 @@ public abstract class MicroService implements Runnable {
             catch (InterruptedException e){
                 e.printStackTrace();
             }
-
         }
     }
 

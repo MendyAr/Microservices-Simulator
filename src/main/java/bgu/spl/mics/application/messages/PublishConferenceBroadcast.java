@@ -6,7 +6,9 @@ import bgu.spl.mics.application.objects.Model;
 import java.util.List;
 
 public class PublishConferenceBroadcast implements Broadcast {
-    private List<Model> publishedModels;
+
+    private final  List<Model> publishedModels;
+
     public PublishConferenceBroadcast(List<Model> publishedModels){
         this.publishedModels=publishedModels;
     }

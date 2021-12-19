@@ -25,7 +25,6 @@ public class ConferenceService extends MicroService {
             throw new IllegalArgumentException("Conference service constructor received null conference!");
 
         this.conference = conference;
-        initialize();
     }
 
     private static String getAvailableName(){
@@ -33,9 +32,10 @@ public class ConferenceService extends MicroService {
         availableIdx++;
         return output;
     }
+
     public void publish(){
         conference.advanceClock();
-        if (conference.getTickCounter()==conference.getDate()) {
+        if (conference.getTickCounter() == conference.getDate()) {
             PublishConferenceBroadcast broadcast = new PublishConferenceBroadcast(conference.getPublishedModels());
             sendBroadcast(broadcast);
             terminate();
@@ -45,7 +45,7 @@ public class ConferenceService extends MicroService {
 
     @Override
     protected void initialize() {
-        subscribeEvent(PublishResultsEvent.class,(PublishResultsEvent event)-> conference.aggregateIfSucc(event.getModel()));
+        subscribeEvent(PublishResultsEvent.class,(PublishResultsEvent event)-> conference.aggregateModel(event.getModel()));
         subscribeBroadcast(terminateBroadcast.class,c->terminate());
         subscribeBroadcast(TickBroadcast.class,c->publish());
     }

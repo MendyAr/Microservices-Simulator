@@ -10,12 +10,12 @@
                 {
                     "name": "YOLO10",
                     "type": "images",
-                    "size": 200000
+                    "size": 20000
                 },
                 {
                     "name": "ResNet9000",
                     "type": "images",
-                    "size": 200000
+                    "size": 20000
                 },
                 {
                     "name": "LessEfficientNet",
@@ -25,7 +25,7 @@
                 {
                     "name": "DensestNet",
                     "type": "images",
-                    "size": 200000
+                    "size": 20000
                 }
             ]
 
@@ -39,7 +39,7 @@
                 {
                     "name": "VIT",
                     "type": "images",
-                    "size": 100000000
+                    "size": 10000
                 }
             ]
 
@@ -53,17 +53,17 @@
                 {
                     "name": "Bert",
                     "type": "Text",
-                    "size": 1000000
+                    "size": 10000
                 },
                 {
                     "name": "GPT4",
                     "type": "Text",
-                    "size": 1000000
+                    "size": 10000
                 },
                 {
                     "name": "GPT5",
                     "type": "Text",
-                    "size": 200000
+                    "size": 20000
                 },
                 {
                     "name": "GPT10",
@@ -82,22 +82,22 @@
                 {
                     "name": "Percepetron",
                     "type": "Tabular",
-                    "size": 1000000
+                    "size": 10000
                 },
                 {
                     "name": "GNN",
                     "type": "Tabular",
-                    "size": 1000000
+                    "size": 10000
                 },
                 {
                     "name": "MoreStyleGAN",
                     "type": "Images",
-                    "size": 100000
+                    "size": 10000
                 },
                 {
                     "name": "ConditionalGAN",
                     "type": "Images",
-                    "size": 500000
+                    "size": 50000
                 }
             ]
 
@@ -111,12 +111,12 @@
                 {
                     "name": "YOLO9000",
                     "type": "images",
-                    "size": 100000
+                    "size": 10000
                 },
                 {
                     "name": "VIT2",
                     "type": "images",
-                    "size": 1000000
+                    "size": 10000
                 },
                 {
                     "name": "MuchMoreEfficientNet",
@@ -126,7 +126,7 @@
                 {
                     "name": "DenserNet",
                     "type": "images",
-                    "size": 100000
+                    "size": 10000
                 }
             ]
 
@@ -142,6 +142,6 @@
         {"name": "ECCV", "date": 4000},
         {"name": "AISTATS", "date": 5000}
     ],
-    "TickTime": 50,
+    "TickTime": 5,
     "Duration": 5500
 }

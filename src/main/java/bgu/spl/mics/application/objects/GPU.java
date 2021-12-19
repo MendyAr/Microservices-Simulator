@@ -1,7 +1,5 @@
 package bgu.spl.mics.application.objects;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -22,12 +20,12 @@ public class GPU {
     private final int vRamCapacity;
     private final  int processTimeCost;
 
-    private Cluster cluster;
+    private final Cluster cluster;
     private int tickCounter;
-    private ConcurrentLinkedQueue<DataBatch> vRam;
-    private Model model;
+    private final ConcurrentLinkedQueue<DataBatch> vRam;
     private int samplesIdx;
     private DataBatch currentDataB;
+    private Model model;
 
     public GPU(String type) {
         switch (type) {
@@ -52,7 +50,7 @@ public class GPU {
 
         cluster = Cluster.getInstance();
         tickCounter = 0;
-        vRam = new ConcurrentLinkedQueue();
+        vRam = new ConcurrentLinkedQueue<>();
         model = null;
         samplesIdx = 0;
     }
@@ -75,60 +73,53 @@ public class GPU {
         return model;
     }
 
+    public void setModel(Model model) {
+        this.model = model;
+    }
+
     public int getProcessTimeCost() {
         return processTimeCost;
     }
-    public void setModel(Model m){
-        model=m;
-        model.setStatus(Model.Status.Training);
-        for (int i=0;i<vRamCapacity && model.getData().getSize()>samplesIdx;i++){
-            DataBatch db=new DataBatch(model.getData(),samplesIdx);
-            cluster.sendUnProcessed(db,this);
-            samplesIdx=samplesIdx+1000;
-        }
-    }
+
 
     // @pre vRam.size() < vRamCapacity
     // @post vRam.size() ==  ( @pre vRam.size() ) + 1
-    public void receiveProcessedDB(DataBatch ProcessedDB) {//receive processed dataBatch from the cluster
+    public void receiveProcessedDB(DataBatch ProcessedDB) {     //receive processed dataBatch from the cluster
         vRam.add(ProcessedDB);
     }
+
     // @post tickCounter = tickCounter + 1;
-    public void advanceClock() {
-        if (model != null) {//means the gpu is currently processed a model
-            if (currentDataB != null) {
-                tickCounter++;
-                cluster.setGpuUTUed();
-                if (processTimeCost == tickCounter) {
-                    currentDataB = null;
-                    tickCounter = 0;
-                    model.getData().incProcessed();
-                    if (samplesIdx<model.getData().getSize()) {
-                        DataBatch dataBatch = new DataBatch(model.getData(), samplesIdx);
-                        cluster.sendUnProcessed(dataBatch,this);
-                        samplesIdx=samplesIdx+1000;
-                    }
-                }
-            }
-            else if (!vRam.isEmpty())
-                currentDataB = vRam.remove();
-            if(model.getData().getProcessed()==model.getData().getSize()) {
-                model.setStatus(Model.Status.Trained);
-                cluster.addTrainedModel(model);
-                model=null;
+    public boolean advanceClock() {
+        //send db to the cpu
+        if (samplesIdx < model.getData().getSize() & vRam.size() < vRamCapacity) {
+            DataBatch dataBatch = new DataBatch(model.getData(), samplesIdx);
+            cluster.sendUnProcessed(dataBatch, this);
+            samplesIdx = samplesIdx + 1000;
+        }
+        //train db
+        if (currentDataB == null & !vRam.isEmpty()){
+            currentDataB = vRam.remove();
+        }
+        if (currentDataB != null) { //means the gpu is currently processed a DB
+            tickCounter++;
+            cluster.setGpuUTUed();
+            if (processTimeCost == tickCounter) {
+                currentDataB = null;
+                tickCounter = 0;
+                model.getData().incProcessed();
             }
         }
+        if(model.getData().getProcessed() == model.getData().getSize()) {
+            model.setStatus(Model.Status.Trained);
+            samplesIdx = 0;
+            return true;
+        }
+        return false;
     }
 
-    // @pre vRam.size() > 0
-    // @post tickCounter > (@pre tickCounter ) + processTime
-    public void processModel(Model m) { //process the data - wait for the defined ticks to happen
-        if (m.getStatus()== Model.Status.PreTrained)
-            setModel(m);
-        else if (m.getStatus()== Model.Status.Trained) {
-            model.setStatus(Model.Status.Tested);
-            model.setResult();
-        }
+    public void testModel(Model trainedModel){
+        trainedModel.setResult();
+        trainedModel.setStatus(Model.Status.Tested);
     }
 
 }

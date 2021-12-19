@@ -26,7 +26,6 @@ public class StudentService extends MicroService {
             throw new IllegalArgumentException("Student service received null student!");
 
         this.student = student;
-        initialize();
     }
 
     private static String getAvailableName(){
@@ -37,22 +36,36 @@ public class StudentService extends MicroService {
 
     @Override
     protected void initialize() {
-        subscribeBroadcast(PublishConferenceBroadcast.class,(PublishConferenceBroadcast broadcast)->student.addpapersRead(broadcast.getPublishedModels()));
+        subscribeBroadcast(PublishConferenceBroadcast.class,(PublishConferenceBroadcast broadcast)->student.addPapersRead(broadcast.getPublishedModels()));
         subscribeBroadcast(terminateBroadcast.class, c->terminate());
-        for (int i=0;i<student.getModels().size();i++) {
+        boolean terminated = false;
+        for (int i = 0; i < student.getModels().size() && !terminated ;i++) {
             TrainModelEvent trainModelEvent = new TrainModelEvent(student.getModels().get(i));
-            Future<Model> trainedResult=sendEvent(trainModelEvent);
-            if (trainedResult.get()!=null) {
-                TestModelEvent testModelEvent = new TestModelEvent(trainedResult.get());
+            Future<Model> trainedResult = sendEvent(trainModelEvent);
+            System.out.println(getName() + " student sent train event");
+            Model trainedModel = trainedResult.get();
+            System.out.println(getName() + " student received train event.     isNull:" + (trainedModel==null));
+            //System.out.println(trainedModel.toString());
+            if (trainedModel != null) {
+                TestModelEvent testModelEvent = new TestModelEvent(trainedModel);
                 Future<Model> testResult = sendEvent(testModelEvent);
-                if (testResult.get()!=null && testResult.get().getResult()== Model.Result.Good){
-                    PublishResultsEvent publishResultsEvent=new PublishResultsEvent(testResult.get());
+                System.out.println(getName() + " student sent test event");
+                Model testedModel = testResult.get();
+                System.out.println(getName() + " student received test event.     isNull:" + (testedModel==null));
+                if (testedModel !=null && testedModel.getResult() == Model.Result.Good){
+                    System.out.println(getName() + " student sent publication event");
+                    PublishResultsEvent publishResultsEvent = new PublishResultsEvent(testedModel);
                     sendEvent(publishResultsEvent);
                 }
-
+                else if (testedModel == null){
+                    terminated = true;
+                }
+            }
+            else{
+                terminated = true;
             }
         }
-
+        System.out.println(getName() + " finish sending models");
     }
 
     public String toString(){

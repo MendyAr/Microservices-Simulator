@@ -34,7 +34,9 @@ public class Future<T> {
 	public T get() {
 		while (!isDone()){
 			try {
-				wait();
+				synchronized (this) {
+					wait();
+				}
 			} catch (InterruptedException e){
 				System.out.println(e.toString());
 				e.printStackTrace();
@@ -52,7 +54,9 @@ public class Future<T> {
 	public void resolve (T result) {
 		this.result = result;
 		resolved = true;
-		notifyAll();
+		synchronized(this) {
+			notifyAll();
+		}
 	}
 	
 	/**

@@ -11,8 +11,8 @@ public class Model {
     public enum Status {PreTrained,Training,Trained,Tested}
     public enum Result {None,Good,Bad}
 
-    private String name;
-    private Data data;
+    private final String name;
+    private final Data data;
     private Status status;
     private Result result;
     private Student student;
@@ -53,32 +53,38 @@ public class Model {
     public Student getStudent() {
         return student;
     }
+
     public void setStatus(Model.Status s){
         status=s;
-    }
-    public void setResult(){
-        Random rand = new Random();
-        int random = rand.nextInt(10);//// Generate random integers in range 0 to 9
-        if (student.getStatus()== Student.Degree.MSc) {
-            if (random == 0)
-                result = Result.Good;
-            else
-                result = Result.Bad;
-        }
-        else if (random <= 1)
-            result=Result.Good;
-        else
-            result=Result.Bad;
     }
 
     public boolean isPublished(){
         return published;
     }
 
+    public void setPublished(){
+        published = true;
+    }
+
+    public void setResult(){
+        Random rand = new Random();
+        int random = rand.nextInt(10);  // Generate random integers in range 0 to 9
+        if (student.getStatus()== Student.Degree.MSc) {
+            if (random <= 5)
+                result = Result.Good;
+            else
+                result = Result.Bad;
+        }
+        else if (random <= 7)
+            result=Result.Good;
+        else
+            result=Result.Bad;
+    }
+
     public String toString(){
-        String output =  "name: " + getName() + "\t" + "status: " + getStatus().toString() + "\t" + "result: " + getResult().toString();
+        String output =  "name: " + getName() + "\t" + "status: " + getStatus().toString() + "\t\t" + "result: " + getResult().toString();
         if (isPublished()){
-            output += "\t published";
+            output += ",\t published.";
         }
         return output;
     }

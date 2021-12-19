@@ -35,6 +35,6 @@ public class CPUService extends MicroService {
     protected void initialize() {
         subscribeBroadcast(terminateBroadcast.class, c->terminate());
         subscribeBroadcast(TickBroadcast.class, c->cpu.advanceClock());
-
+        cpu.registerToCluster();
     }
 }

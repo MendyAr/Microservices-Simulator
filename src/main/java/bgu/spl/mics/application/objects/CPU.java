@@ -1,8 +1,8 @@
 package bgu.spl.mics.application.objects;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 /**
@@ -22,7 +22,7 @@ public class CPU {
     private final int tabularProcessTime;
     private Cluster cluster;
     private int tickCounter;
-    private Queue<DataBatch>dataBatches;
+    private Queue<DataBatch> dataBatches;
     private DataBatch currentDBProcessed;
 
 
@@ -33,24 +33,8 @@ public class CPU {
         tabularProcessTime = (32/cores);
         cluster = Cluster.getInstance();
         tickCounter = 0;
+        dataBatches = new ConcurrentLinkedQueue<>();
 
-    }
-
-
-    public int getCores() {
-        return cores;
-    }
-
-    public int getImageProcessTime() {
-        return imageProcessTime;
-    }
-
-    public int getTextProcessTime() {
-        return textProcessTime;
-    }
-
-    public int getTabularProcessTime() {
-        return tabularProcessTime;
     }
 
     public int getTickCounter() {
@@ -59,20 +43,17 @@ public class CPU {
 
     // @post tickCounter = tickCounter + 1;
     public void advanceClock(){
-        if(currentDBProcessed!=null) {//cpu is processed data
+        if (currentDBProcessed == null & !dataBatches.isEmpty()){
+            currentDBProcessed = dataBatches.poll();
+            cluster.setCpuUTUed();
+        }
+        if(currentDBProcessed != null) {  //cpu is processed data
             tickCounter++;
             cluster.setCpuUTUed();
             if (DataIsProcessed()) {
                 tickCounter = 0;
-                cluster.receiveProcessed(currentDBProcessed);
+                cluster.sendProcessed(currentDBProcessed);
                 currentDBProcessed = null;
-            }
-        }
-        else {
-            if (dataBatches.size()>0) {//there is un processed data to process
-                currentDBProcessed=dataBatches.poll();
-                tickCounter++;
-                cluster.setCpuUTUed();
             }
         }
     }
@@ -80,6 +61,7 @@ public class CPU {
     public void process(DataBatch db){ //get un process data from the cluster
         dataBatches.add(db);
     }
+
     private boolean DataIsProcessed(){
         Data.Type dbType=currentDBProcessed.getData().getType();
         switch (dbType){
@@ -91,5 +73,9 @@ public class CPU {
                 return tickCounter==tabularProcessTime;
         }
         return false;
+    }
+
+    public void registerToCluster(){
+        cluster.registerCPU(this);
     }
 }

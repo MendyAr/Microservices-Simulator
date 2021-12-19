@@ -7,6 +7,9 @@ import bgu.spl.mics.application.messages.TrainModelEvent;
 import bgu.spl.mics.application.messages.terminateBroadcast;
 import bgu.spl.mics.application.objects.GPU;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * GPU service is responsible for handling the
  * {@link TrainModelEvent} and {@link TestModelEvent},
@@ -20,7 +23,7 @@ public class GPUService extends MicroService {
     private static int availableIdx = 0;
 
     private final GPU gpu;
-    private int gpuUseTime;
+    private final List<TrainModelEvent> trainEvents;
 
     public GPUService(GPU gpu) {
         super(getAvailableName());
@@ -28,8 +31,7 @@ public class GPUService extends MicroService {
             throw new IllegalArgumentException("GPU service received null gpu!");
 
         this.gpu = gpu;
-        gpuUseTime = 0;
-        initialize();
+        trainEvents = new LinkedList<>();
     }
 
     private static String getAvailableName(){
@@ -38,16 +40,44 @@ public class GPUService extends MicroService {
         return output;
     }
 
-    public int getGpuUseTime() {
-        return gpuUseTime;
-    }
-
     @Override
      protected void initialize() {
-        subscribeEvent(TrainModelEvent.class,(TrainModelEvent event)->gpu.processModel(event.getModel()));
-        subscribeEvent(TestModelEvent.class,(TestModelEvent event)->gpu.processModel(event.getModel()));
-        subscribeBroadcast(terminateBroadcast.class, c->terminate());
-        subscribeBroadcast(TickBroadcast.class, c->gpu.advanceClock());
+        subscribeEvent(TrainModelEvent.class, this::trainModel);
+        subscribeEvent(TestModelEvent.class, this::testModel);
+        subscribeBroadcast(terminateBroadcast.class, c->endSession());
+        subscribeBroadcast(TickBroadcast.class, c->advanceClock());
+    }
+
+    private void trainModel(TrainModelEvent trainModelEvent){
+        trainEvents.add(trainModelEvent);
+        System.out.println(getName() + " recived a model");
+    }
+
+    private void advanceClock(){
+        if (gpu.getModel() == null & !trainEvents.isEmpty()) {
+            gpu.setModel(trainEvents.get(0).getModel());
+        }
+        if (gpu.getModel() != null) {
+            boolean isDone = gpu.advanceClock();
+            if (isDone) {
+                complete(trainEvents.remove(0), gpu.getModel());
+                System.out.println(getName() + " finished processing a model. isNull:" + (gpu.getModel()==null));
+                gpu.setModel(null);
+            }
+        }
+    }
+
+    private void testModel(TestModelEvent testModelEvent){
+        System.out.println(getName() + " testing model");
+        gpu.testModel(testModelEvent.getModel());
+        complete(testModelEvent, testModelEvent.getModel());
+    }
+
+    protected void endSession(){
+        for (TrainModelEvent trainModelEvent : trainEvents){
+            complete(trainModelEvent, null);
+        }
+        terminate();
     }
 
 }

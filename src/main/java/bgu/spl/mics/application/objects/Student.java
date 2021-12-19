@@ -19,9 +19,8 @@ public class Student {
     private final String name;
     private final String department;
     private final Degree status;
-    private int numOfPublications;
+    private final List<Model> models;
     private int numOfPapersRead;
-    private List<Model> models;
 
     public Student(String name, String department, String status, List<Model> models) {
         this.name = name;
@@ -37,39 +36,28 @@ public class Student {
             default:
                 throw new IllegalArgumentException("Student type is not recognized!");
         }
-        numOfPublications = 0;
-        numOfPapersRead = 0;
         this.models = models;
+        for (Model model : this.models){
+            model.initializeCreatingStudent(this);
+        }
+        numOfPapersRead = 0;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getDepartment() {
-        return department;
-    }
-
     public Degree getStatus() {
         return status;
-    }
-
-    public int getNumOfPublications() {
-        return numOfPublications;
-    }
-
-    public int getNumOfPapersRead() {
-        return numOfPapersRead;
     }
 
     public List<Model> getModels() {
         return models;
     }
 
-    /* ?? public List<Model> getPublishedModels() {
-        return null; //TODO implementation
-    } */
-
+    public int getNumOfPapersRead() {
+        return numOfPapersRead;
+    }
 
     public String toString(){
         String output = "";
@@ -83,10 +71,12 @@ public class Student {
         return output;
     }
 
-    public void addpapersRead(List<Model> publishedModels) {
-        for (Model m:publishedModels){
-            if (m.getStudent()!=this)
+    public void addPapersRead(List<Model> publishedModels) {
+        for (Model m : publishedModels){
+            if (m.getStudent() != this)
                 numOfPapersRead++;
+            else
+                m.setPublished();
         }
     }
 }

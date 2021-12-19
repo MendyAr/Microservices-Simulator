@@ -26,7 +26,6 @@ public class TimeService extends MicroService {
 
 		this.tickTime = tickTime;
 		this.duration = duration;
-		initialize();
 	}
 
 	public static TimeService getFirstInstance(int tickTime, int duration){
@@ -46,7 +45,6 @@ public class TimeService extends MicroService {
 
 	@Override
 	protected void initialize() {
-		subscribeBroadcast(terminateBroadcast.class, c->terminate());
 		for (int i=0; i<duration;i++){
 			try {
 				Thread.sleep(tickTime);
@@ -55,10 +53,12 @@ public class TimeService extends MicroService {
 			}
 			catch (InterruptedException e){
 			e.printStackTrace();
+			}
 		}
-		}
-		terminateBroadcast terminateBroadcast=new terminateBroadcast();
+		terminateBroadcast terminateBroadcast = new terminateBroadcast();
+		System.out.println("terminating");
 		sendBroadcast(terminateBroadcast);
+		terminate();
 	}
 
 }

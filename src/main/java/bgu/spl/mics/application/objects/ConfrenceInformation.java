@@ -1,7 +1,5 @@
 package bgu.spl.mics.application.objects;
 
-import bgu.spl.mics.application.messages.PublishConferenceBroadcast;
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -52,10 +50,10 @@ public class ConfrenceInformation {
         }
         return output;
     }
-    public void aggregateIfSucc(Model m){
-        if (m.getResult()== Model.Result.Good)
-            publishedModels.add(m);
+    public void aggregateModel(Model m){
+        publishedModels.add(m);
     }
+
     public void advanceClock() {
         tickCounter++;
     }
